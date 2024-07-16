@@ -1,4 +1,4 @@
-.PHONY: all lint test install dev clean distclean
+.PHONY: all lint test install dev clean distclean python-tests r-tests
 
 PYTHON ?= python
 
@@ -8,8 +8,13 @@ lint:
 	q2lint
 	flake8
 
-test: all
+test: r-tests python-tests
+
+python-tests:
 	py.test
+
+r-tests:
+	Rscript -e "library(testthat); test_dir('q2_r_example_plugin/tests/R')"
 
 install: all
 	pip install .

@@ -1,6 +1,6 @@
 # flake8: noqa
 # ----------------------------------------------------------------------------
-# Copyright (c) 2024, Colin Wood.
+# Copyright (c) 2024, A QIIME 2 Plugin Developer.
 #
 # Distributed under the terms of the Modified BSD License.
 #

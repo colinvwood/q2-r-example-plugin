@@ -1,44 +1,38 @@
 # ----------------------------------------------------------------------------
-# Copyright (c) 2024, Colin Wood.
+# Copyright (c) 2024, A QIIME 2 Plugin Developer.
 #
 # Distributed under the terms of the Modified BSD License.
 #
 # The full license is in the file LICENSE, distributed with this software.
-# ----------------------------------------------------------------------------
-
+# ---------------------------------------------------------------------------
 import pandas as pd
-import pandas.testing as pdt
 
 from qiime2.plugin.testing import TestPluginBase
-from qiime2.plugin.util import transform
-from q2_types.feature_table import BIOMV100Format
+from qiime2 import Artifact
 
-from q2_r_example_plugin._methods import duplicate_table
+from q2_r_example_plugin._methods import randomize_frequencies
 
 
-class DuplicateTableTests(TestPluginBase):
+class TestMethods(TestPluginBase):
     package = 'q2_r_example_plugin.tests'
 
-    def test_simple1(self):
-        in_table = pd.DataFrame(
-            [[1, 2, 3, 4, 5], [9, 10, 11, 12, 13]],
-            columns=['abc', 'def', 'jkl', 'mno', 'pqr'],
-            index=['sample-1', 'sample-2'])
-        observed = duplicate_table(in_table)
+    def setUp(self):
+        table_fp = self.get_data_path('table.qza')
+        self.table = Artifact.load(table_fp)
 
-        expected = in_table
+    def tearDown(self):
+        pass
 
-        pdt.assert_frame_equal(observed, expected)
+    def test_randomize_frequencies(self):
+        input_table = self.table.view(pd.DataFrame)
+        output_table = randomize_frequencies(input_table.copy())
 
-    def test_simple2(self):
-        # test table duplication with table loaded from file this time
-        # (for demonstration purposes)
-        in_table = transform(
-            self.get_data_path('table-1.biom'),
-            from_type=BIOMV100Format,
-            to_type=pd.DataFrame)
-        observed = duplicate_table(in_table)
+        self.assertEqual(output_table.shape, input_table.shape)
+        self.assertEqual(set(output_table.index), set(input_table.index))
+        self.assertEqual(set(output_table.columns), set(input_table.columns))
 
-        expected = in_table
-
-        pdt.assert_frame_equal(observed, expected)
+        some_feature_id = output_table.columns[0]
+        comparison = (
+            output_table[some_feature_id] == input_table[some_feature_id]
+        )
+        self.assertTrue(not comparison.all())

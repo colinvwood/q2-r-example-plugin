@@ -9,7 +9,9 @@
 from qiime2.plugin import Citations, Plugin
 from q2_types.feature_table import FeatureTable, Frequency
 from q2_r_example_plugin import __version__
-from q2_r_example_plugin._methods import duplicate_table
+from q2_r_example_plugin._methods import randomize_frequencies
+from q2_r_example_plugin._visualizers import plot_sorted_samples
+
 
 citations = Citations.load("citations.bib", package="q2_r_example_plugin")
 
@@ -27,15 +29,30 @@ plugin = Plugin(
 )
 
 plugin.methods.register_function(
-    function=duplicate_table,
+    function=randomize_frequencies,
     inputs={'table': FeatureTable[Frequency]},
     parameters={},
-    outputs=[('new_table', FeatureTable[Frequency])],
-    input_descriptions={'table': 'The feature table to be duplicated.'},
+    outputs=[('randomized_table', FeatureTable[Frequency])],
+    input_descriptions={'table': 'The feature table in which to sum.'},
     parameter_descriptions={},
-    output_descriptions={'new_table': 'The duplicated feature table.'},
-    name='Duplicate table',
-    description=("Create a copy of a feature table with a new uuid. "
-                 "This is for demonstration purposes only. 🧐"),
+    output_descriptions={'randomized_table': 'The randomized feature table.'},
+    name='Randomize feature frequencies.',
+    description=(
+        "Sum the features within each sample and assign this sum to each "
+        "feature count in that sample."
+    ),
+    citations=[]
+)
+
+plugin.visualizers.register_function(
+    function=plot_sorted_samples,
+    inputs={'table': FeatureTable[Frequency]},
+    parameters={},
+    input_descriptions={'table': 'The feature table to use to plot.'},
+    parameter_descriptions={},
+    name='Plot sorted samples.',
+    description=(
+        "Plot samples in decreasing order of total sample abundance."
+    ),
     citations=[]
 )
